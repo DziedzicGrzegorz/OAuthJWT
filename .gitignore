@@ -1,0 +1,6 @@
+*.yaml
+*.idea
+.env
+dist/**/*
+node_modules
+nodemon.json
