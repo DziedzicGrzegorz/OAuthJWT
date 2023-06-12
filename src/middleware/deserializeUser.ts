@@ -1,6 +1,7 @@
 import {getSession} from '../db/allUser';
 import {signJWT, verifyJWT} from '../utils/jwt.utils';
 import {type NextFunction, type Request, type Response} from 'express';
+import {DecodedPayload, UserPayload} from "../types/user";
 
 export function deserializeUser(req: Request, res: Response, next: NextFunction): void {
     const {accessToken, refreshToken} = req.cookies;
@@ -9,7 +10,7 @@ export function deserializeUser(req: Request, res: Response, next: NextFunction)
         return next();
     }
 
-    const {payload, expired} = verifyJWT(accessToken);
+    const {payload, expired} = verifyJWT(accessToken) as { payload: UserPayload, expired: boolean };
 
 
     if (payload) {
@@ -20,7 +21,7 @@ export function deserializeUser(req: Request, res: Response, next: NextFunction)
     // expired but valid access token
 
     const {payload: refresh} =
-        expired && refreshToken ? verifyJWT(refreshToken) : {payload: null};
+        expired && refreshToken ? verifyJWT(refreshToken) : {payload: null} as { payload: DecodedPayload } | { payload: null };
 
     if (!refresh) {
         return next();
@@ -35,7 +36,7 @@ export function deserializeUser(req: Request, res: Response, next: NextFunction)
 
 
     res.cookie('accessToken', newAccessToken, {
-        maxAge: 1000 * 60 * 60, // 1 hour
+        maxAge: 1000 * 60 * 60 * 24 * 7,// 1 week
         httpOnly: true,
     });
     req.user = verifyJWT(newAccessToken).payload;

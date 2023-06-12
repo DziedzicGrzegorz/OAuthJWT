@@ -17,7 +17,8 @@ export function verifyJWT(token: string) {
         const decoded = jwt.verify(token, publicKey as Secret, {algorithms: ['RS256']}) as DecodedPayload | UserPayload;
         return {payload: decoded, expired: false};
     } catch (error) {
-        return {payload: null, expired: (error as Error).message.includes('jwt expired')};
+        console.log({error})
+        return {payload: null, expired: true};
     }
 }
 
@@ -27,8 +28,8 @@ export function createAndSign(user: Pick<User, "name" | "email">) {
 
     const {sessionId} = session;
 
-    const accessToken = signJWT({email, name, sessionId}, '5s');
-    const refreshToken = signJWT({sessionId}, '1y')
+    const accessToken = signJWT({email, name, sessionId}, '5s'); // to jest w ciastko
+    const refreshToken = signJWT({sessionId}, '1y') // to jest w ciastku
 
 
     return {session, accessToken, refreshToken};
